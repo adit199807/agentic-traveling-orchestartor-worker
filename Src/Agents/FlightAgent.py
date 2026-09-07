@@ -1,5 +1,3 @@
-import math
-
 from langchain_openai import ChatOpenAI
 from langchain.agents import create_agent
 from Utilities.EnvironmentVariableLoader import loadEnvVariable
@@ -12,8 +10,8 @@ from langchain.messages import HumanMessage
 from langgraph.checkpoint.memory import InMemorySaver
 
 MODEL = loadEnvVariable('MINI_MODEL')
-FLIGHTPROMPT = """
-You are a smart Travel agent responsible for booking flight.
+FLIGHT_AGENT_PROMPT = """
+You are a smart Fligt agency agent responsible for booking flight.
 You will look the desire travel date, orgin airport and destination.
 You need to look at users budget and any other contrains like number stops, total travel hours, if given.
 If not budget is given, check the user's account balance, and make sure user can afford the flight.
@@ -88,7 +86,7 @@ checkPointer = InMemorySaver()
 flightAgent  = create_agent(
     model=MODEL,
     tools=toolsToUse,
-    system_prompt=FLIGHTPROMPT,
+    system_prompt=FLIGHT_AGENT_PROMPT,
     middleware=[],
     name= 'FLIGHT_AGENT',
     response_format=FlightAgentResponse,
@@ -97,6 +95,7 @@ flightAgent  = create_agent(
 
 
 def main():
+    print("============================Flight Agent at Service============================")
     thread_connfig = {"configurable": {"thread_id": "manager_session_456"}}
     try: 
         response = flightAgent.invoke(
