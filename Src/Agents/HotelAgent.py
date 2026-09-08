@@ -30,13 +30,13 @@ class HotelDetails(BaseModel):
     city:str  = Field(description='location city of the hotel')
     dates:list[str]  = Field(description='List of dates for which hotel has been booked for')
     price:str  = Field(description='Total cost of reservation')
+    aminities_desired:list[str] = Field(description='List of amenities hotel has')
 
 
 class HotelAgentResponse(BaseModel):
     recommendedHotels: list[HotelDetails] | list = Field(description='Flied for recommended hotel recommendations')
     bookHotel:HotelDetails | None = Field(description='flied for booked hotel')
     response:Literal['Booked', 'No Hotel found'] = Field(description='final response regarding booking')
-
 
 
 @tool('bookHotel')
@@ -57,22 +57,47 @@ def bookHotel(hotelId:str, dates:list[str])->dict:
     return {}
 
 @tool('hotelLookUp')
-def hotelLookUp(destinationCity:str, dates:list[str])->dict:
+def hotelLookUp(destinationCity:str,
+                dates:list[str],
+                budget_per_night: int | None = None,
+                traveler_type: str | None = None)->list:
     """Look up hotels the given dates for given location and dates"""
     """
     Args:
         destinationCity : city where hotel is to be booked
         dates : list of dates for which hotel is needed for
+        budget_per_night: Maximum budget per night in USD (optional)
+        traveler_type: Type of traveler - "solo", "couples", "families", "luxury", "budget" (optional)
+        aminities_desired : 
     Returns:
-        detail of the book hotel
+        List of filtered hotels according to user's criteria. 
     """
     hotelList = []
     for city, hotels in MOCK_HOTELS.items():
         if city == destinationCity:
             for hotel in hotels:
-                if hotel['id'] == hotel:
-                    hotelList.append(hotel)
+                if budget_per_night != None and hotel['price_per_night'] > budget_per_night:
+                    continue
+                if traveler_type != None and  traveler_type not in  hotel['traveler_type']:
+                    continue
+                if len(dates) > 0 and 'availableDates' in hotel:
+                    for date in dates:
+                        if date not in hotel['availableDates']:
+                            continue
+                hotelList.append(hotel)
     return hotelList
+
+@tool('hotelRerank')
+def hotelRerank(filteredHotel:list)->list:
+    """Rerank the Hotel according to the amenties it has to provide"""
+    """
+    Args:
+        filteredHotel : List of filtered hotels to be reranked according to amenities
+    Returns:
+        List of reranked filtered hotels 
+    """
+    filteredHotel = sorted(filteredHotel, key=lambda x: len(x['amenities']), reverse=True)
+    return filteredHotel
 
 
 toolsToUse = [bookHotel, hotelLookUp,checkAccountBalance, deductUserBalance, checkUserCity]
