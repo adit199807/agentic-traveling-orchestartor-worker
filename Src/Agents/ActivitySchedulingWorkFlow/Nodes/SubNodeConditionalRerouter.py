@@ -1,8 +1,10 @@
 from langchain.messages import HumanMessage
 from Agents.ActivitySchedulingWorkFlow.Agent import recommendationGeneraterAgent
 from langgraph.graph import END
-from ActivitySchedulingWorkFlow.Schemas import SubGraphState
-from ActivitySchedulingWorkFlow.Graph.SubGraph import RECOMMENDATION_CRITIC 
+from Agents.ActivitySchedulingWorkFlow.Schemas import SubGraphState
+
+
+RECOMMENDATION_CRITIC = 'RECOMMENDATION_CRITIC'
 
 def conditionalRerouter(state:SubGraphState):
     if state['currenTNumberOfIteration'] < 3:

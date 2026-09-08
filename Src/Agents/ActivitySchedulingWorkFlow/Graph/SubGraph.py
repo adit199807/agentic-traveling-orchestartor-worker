@@ -1,10 +1,12 @@
 from langgraph.graph import StateGraph, START, END
-from ActivitySchedulingWorkFlow.Schemas import SubGraphState
-from ActivitySchedulingWorkFlow.Nodes.SubNodeRecommendationGenerator import recommendationGenerator
-from ActivitySchedulingWorkFlow.Nodes.SubNodeCriticRecommendation import criticRecommendation
-from ActivitySchedulingWorkFlow.Nodes.SubNodeRecommendationRegenerator import recommendReGeneratorPerDay
-from ActivitySchedulingWorkFlow.Nodes.SubNodeConditionalRerouter import conditionalRerouter
-from ActivitySchedulingWorkFlow.Schemas import GraphState
+from langgraph.graph.state import RetryPolicy
+
+from Agents.ActivitySchedulingWorkFlow.Schemas import SubGraphState
+from Agents.ActivitySchedulingWorkFlow.Nodes.SubNodeRecommendationGenerator import recommendationGenerator
+from Agents.ActivitySchedulingWorkFlow.Nodes.SubNodeCriticRecommendation import criticRecommendation
+from Agents.ActivitySchedulingWorkFlow.Nodes.SubNodeRecommendationRegenerator import recommendReGeneratorPerDay
+from Agents.ActivitySchedulingWorkFlow.Nodes.SubNodeConditionalRerouter import conditionalRerouter
+from Agents.ActivitySchedulingWorkFlow.Schemas import GraphState, DesiredCategoriesForOneDay
 
 
 RECOMMENDATION_GENERATOR = 'RECOMMENDATION_GENERATOR'
@@ -13,10 +15,18 @@ RECOMMENDATION_REGENERATOR = 'RECOMMENDATION_REGENERATOR'
 RECOMMENDATION_CONDITIONAL_ROUTING = 'RECOMMENDATION_CONDITIONAL_ROUTING'
 
 graphFlow = StateGraph(SubGraphState)
-graphFlow.add_node(RECOMMENDATION_GENERATOR, recommendationGenerator)
-graphFlow.add_node(RECOMMENDATION_CRITIC, criticRecommendation)
-graphFlow.add_node(RECOMMENDATION_REGENERATOR, recommendReGeneratorPerDay)
-graphFlow.add_node(RECOMMENDATION_CONDITIONAL_ROUTING, conditionalRerouter)
+graphFlow.add_node(RECOMMENDATION_GENERATOR, 
+                   recommendationGenerator,
+                retry_policy=RetryPolicy(initial_interval = 30, backoff_factor=3, max_attempts=3))
+graphFlow.add_node(RECOMMENDATION_CRITIC, 
+                   criticRecommendation,
+                   retry_policy=RetryPolicy(initial_interval = 30, backoff_factor=3, max_attempts=3))
+graphFlow.add_node(RECOMMENDATION_REGENERATOR, 
+                   recommendReGeneratorPerDay,
+                   retry_policy=RetryPolicy(initial_interval = 30, backoff_factor=3, max_attempts=3))
+graphFlow.add_node(RECOMMENDATION_CONDITIONAL_ROUTING, 
+                   conditionalRerouter,
+                   retry_policy=RetryPolicy(initial_interval = 30, backoff_factor=3, max_attempts=3))
 
 graphFlow.add_edge(START, RECOMMENDATION_GENERATOR)
 graphFlow.add_edge(RECOMMENDATION_GENERATOR, RECOMMENDATION_CRITIC)
@@ -29,8 +39,13 @@ graphFlow.add_conditional_edges(RECOMMENDATION_REGENERATOR, conditionalRerouter,
 graphFlow.add_edge(RECOMMENDATION_CONDITIONAL_ROUTING, END)
 subGraph = graphFlow.compile()
 
-def recommendationSubGraph(state:SubGraphState):
-    result = subGraph.invoke({'desiredCategoriesForOneDay':state['desiredCategoriesForOneDay']})
+def recommendationSubGraph(state:DesiredCategoriesForOneDay):
+    result = subGraph.invoke( {
+        'desiredCategoriesForOneDay' : state,
+        'activityRecommendationPerDay' :  None,
+        'recommendationCriticPerDay' :  None,
+        'currenTNumberOfIteration' :  None,
+        })
     return {'activityRecommendationPerDay':result['structer_response']}
 
 if __name__ == "__main__":

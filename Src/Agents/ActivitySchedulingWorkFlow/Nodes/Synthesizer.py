@@ -8,7 +8,7 @@ from DummyDatas.MockData import MOCK_ACTIVITIES
 from Tools.UserUpsert import checkAccountBalance, deductUserBalance, checkUserCity
 from langchain.messages import HumanMessage
 from langgraph.checkpoint.memory import InMemorySaver
-from ActivitySchedulingWorkFlow.Schemas import GraphState
+from Agents.ActivitySchedulingWorkFlow.Schemas import GraphState
 
 def synthersizer(state:GraphState):
     state['activityAgentResponse'].listOfActivityPerDay.append(state['activityRecommendationPerDay'])

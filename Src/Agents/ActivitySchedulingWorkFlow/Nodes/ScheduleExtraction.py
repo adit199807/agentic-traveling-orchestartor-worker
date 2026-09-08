@@ -8,14 +8,14 @@ from langchain.messages import HumanMessage
 from langgraph.checkpoint.memory import InMemorySaver
 from langgraph.graph import StateGraph
 from Agents.ActivitySchedulingWorkFlow.Agent import scheduleFetchedAgent
-from ActivitySchedulingWorkFlow.Schemas import GraphState
+from Agents.ActivitySchedulingWorkFlow.Schemas import GraphState
 
 
 
 def scheduleExtraction(state:GraphState):
     print(f"============================Activity Agent at Service============================")
     result = scheduleFetchedAgent.invoke({'messages':[HumanMessage(content=f"""{state['userInput']}""")]})
-    return {'totalDesiredActivities' : result['structured_response'].ListOfDesiredActivity}
+    return {'totalDesiredActivities' : result['structured_response']}
 
 
 def main():

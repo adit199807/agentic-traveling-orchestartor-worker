@@ -39,15 +39,13 @@ class ActivityAgentResponse(BaseModel):
     listOfActivityPerDay: list[ActivityRecommendationPerDay] | list = Field(description='List of list of activity recommended per day.')
 
 class GraphState(TypedDict):
-    userInput : str
-    totalDesiredActivities : TotalDesiredActivities
-    activityAgentResponse :  ActivityAgentResponse
-    activityRecommendationPerDay :  ActivityRecommendationPerDay
-
-
+    userInput : str| None
+    totalDesiredActivities : TotalDesiredActivities | None
+    activityAgentResponse :  ActivityAgentResponse| None
+    activityRecommendationPerDay :  ActivityRecommendationPerDay| None
 
 class SubGraphState(TypedDict):
-    desiredCategoriesForOneDay : DesiredCategoriesForOneDay
-    activityRecommendationPerDay : ActivityRecommendationPerDay
-    recommendationCriticPerDay : RecommendationCriticPerDay
-    currenTNumberOfIteration : int
+    desiredCategoriesForOneDay : DesiredCategoriesForOneDay| None
+    activityRecommendationPerDay : ActivityRecommendationPerDay| None
+    recommendationCriticPerDay : RecommendationCriticPerDay| None
+    currenTNumberOfIteration : int| None

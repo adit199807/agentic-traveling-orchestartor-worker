@@ -1,13 +1,13 @@
 from langchain.messages import HumanMessage
 from Agents.ActivitySchedulingWorkFlow.Agent import recommendationGeneraterAgent
-from ActivitySchedulingWorkFlow.Schemas import SubGraphState
+from Agents.ActivitySchedulingWorkFlow.Schemas import SubGraphState
 
 
 def recommendationGenerator(state:SubGraphState):
     userPref =  state['desiredCategoriesForOneDay']
-    city = userPref.city
-    categories = userPref.category
-    budget = userPref.budgetPerDay
+    city = userPref['city']
+    categories = userPref['category']
+    budget = userPref['budgetPerDay']
 
     result = recommendationGeneraterAgent.invoke({'messages' : [HumanMessage
                     (content=f""" the desired city is: {city} and following categories: {categories}
