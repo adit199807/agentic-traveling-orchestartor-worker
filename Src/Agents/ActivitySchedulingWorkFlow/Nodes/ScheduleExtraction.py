@@ -8,25 +8,19 @@ from langchain.messages import HumanMessage
 from langgraph.checkpoint.memory import InMemorySaver
 from langgraph.graph import StateGraph
 from Agents.ActivitySchedulingWorkFlow.Agent import scheduleFetchedAgent
+from ActivitySchedulingWorkFlow.Schemas import GraphState
 
 
 
-def scheduleExtraction():
+def scheduleExtraction(state:GraphState):
     print(f"============================Activity Agent at Service============================")
-    result = scheduleFetchedAgent.invoke({'messages':[ 
-        HumanMessage(content="""
-            I am traveling for tokyo for 3 days. Please recommend me list of activities to do. 
-            My budget is 500 USD.
-            Categories I want to cover are Nature, Views and culture.
-        """)
-    ]})
-    print(result['structured_response'])
-    return {'ActivityCategoryPerDay' : result['structured_response'].ListOfDesiredActivity}
+    result = scheduleFetchedAgent.invoke({'messages':[HumanMessage(content=f"""{state['userInput']}""")]})
+    return {'totalDesiredActivities' : result['structured_response'].ListOfDesiredActivity}
 
 
 def main():
     print("Hello from agentic-traveling!")
-    scheduleExtraction()
+    # scheduleExtraction()
 
 if __name__ == "__main__":
     main()

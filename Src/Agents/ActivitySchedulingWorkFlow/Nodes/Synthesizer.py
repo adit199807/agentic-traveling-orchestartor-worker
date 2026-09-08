@@ -8,8 +8,9 @@ from DummyDatas.MockData import MOCK_ACTIVITIES
 from Tools.UserUpsert import checkAccountBalance, deductUserBalance, checkUserCity
 from langchain.messages import HumanMessage
 from langgraph.checkpoint.memory import InMemorySaver
-from langgraph.graph import StateGraph
+from ActivitySchedulingWorkFlow.Schemas import GraphState
 
+def synthersizer(state:GraphState):
+    state['activityAgentResponse'].listOfActivityPerDay.append(state['activityRecommendationPerDay'])
+    return {'activityAgentResponse' : state['activityAgentResponse']}
 
-class ActivityRecommendedForTrip(BaseModel):
-    listOfActivityPerDay: list[ActivityPerDay] | list = Field(description='List of list of activity recommended per day.')

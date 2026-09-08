@@ -2,25 +2,36 @@ from langchain.messages import SystemMessage
 from Agents.ActivitySchedulingWorkFlow.Agent import recommendationReGeneraterAgent
 from Agents.ActivitySchedulingWorkFlow.Schemas import TotalDesiredActivities, DesiredCategoriesForOneDay
 from Agents.ActivitySchedulingWorkFlow.Nodes.ScheduleExtraction import scheduleExtraction
-from Agents.ActivitySchedulingWorkFlow.Nodes.ActivityRecommenderSubNode import recommendActivityPerDay
-from Agents.ActivitySchedulingWorkFlow.Nodes.CriticRecommendationSubNode import recommendCriticPerDay
+from Src.Agents.ActivitySchedulingWorkFlow.Nodes.SubNodeActivityRecommender import recommendActivityPerDay
+from Src.Agents.ActivitySchedulingWorkFlow.Nodes.SubNodeCriticRecommendation import recommendCriticPerDay
+from ActivitySchedulingWorkFlow.Schemas import SubGraphState
 import time
 
 
-def recommendReGeneratorPerDay(desiredCategoriesForOneDay:DesiredCategoriesForOneDay, critics:list[str]):
+def recommendReGeneratorPerDay(state:SubGraphState):
+    # desiredCategoriesForOneDay:DesiredCategoriesForOneDay, critics:list[str]
     attempt = 0
     while attempt<4:
         try:
-            schedule =  desiredCategoriesForOneDay
+            schedule =  state['activityRecommendationPerDay']
+            critics = state['recommendationCriticPerDay'].critics
             result = recommendationReGeneraterAgent.invoke({'messages' : [SystemMessage
                             (content=f""" critics: {critics} and previous schedule: {schedule}
-        """)]})
-            return {'activityRecommendationPerDay' : result['structured_response']}
+            """)]})
+
+            return {
+                'activityRecommendationPerDay' : result['structured_response'],
+                'currenTNumberOfIteration' : state['currenTNumberOfIteration']+1
+            }
         except Exception as e:
             print(e)
             attempt += 1
             time.sleep(60)
-        return {'activityRecommendationPerDay' : []}
+            
+            return{
+                    'activityRecommendationPerDay' : state['activityRecommendationPerDay'],
+                    'currenTNumberOfIteration' : state['currenTNumberOfIteration']+1
+                }
 
 
 def main():

@@ -1,5 +1,6 @@
 from pydantic import BaseModel, Field
 from typing import Literal
+from typing import TypedDict, Annotated
 
 class DesiredCategoriesForOneDay(BaseModel):
     """Use this structure for city user is going to be for one day, and category they want to cover in one day"""
@@ -34,6 +35,19 @@ class RecommendationCriticPerDay(BaseModel):
     critics: list[str] | list = Field(description='List of critics to improve the recommendation.')
 
 
-
 class ActivityAgentResponse(BaseModel):
     listOfActivityPerDay: list[ActivityRecommendationPerDay] | list = Field(description='List of list of activity recommended per day.')
+
+class GraphState(TypedDict):
+    userInput : str
+    totalDesiredActivities : TotalDesiredActivities
+    activityAgentResponse :  ActivityAgentResponse
+    activityRecommendationPerDay :  ActivityRecommendationPerDay
+
+
+
+class SubGraphState(TypedDict):
+    desiredCategoriesForOneDay : DesiredCategoriesForOneDay
+    activityRecommendationPerDay : ActivityRecommendationPerDay
+    recommendationCriticPerDay : RecommendationCriticPerDay
+    currenTNumberOfIteration : int
